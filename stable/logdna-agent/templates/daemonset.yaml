@@ -4,16 +4,16 @@ kind: DaemonSet
 metadata:
   name: {{ template "logdna.name" . }}
   labels:
-    app: {{ template "logdna.name" . }}
-    chart: {{ template "logdna.chart" . }}
-    release: {{ .Release.Name }}
+    app.kubernetes.io/name: {{ template "logdna.name" . }}
+    helm.sh/chart: {{ template "logdna.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
   template:
     metadata:
       labels:
-        app: {{ template "logdna.name" . }}
-        chart: {{ template "logdna.chart" . }}
-        release: {{ .Release.Name }}
+        app.kubernetes.io/name: {{ template "logdna.name" . }}
+        helm.sh/chart: {{ template "logdna.chart" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       containers:
       - name: {{ template "logdna.name" . }}
@@ -27,7 +27,7 @@ spec:
           - name: LOGDNA_AGENT_KEY
             valueFrom:
               secretKeyRef:
-                name: {{ template "logdna.name" . }}
+                name: {{ .Release.Name }}-{{ template "logdna.name" . }}
                 key: logdna-agent-key
           - name: LOGDNA_PLATFORM
             value: k8s
@@ -37,7 +37,15 @@ spec:
 {{- end }}
 {{- if .Values.logdna.autoupdate }}
           - name: LOGDNA_AUTOUPDATE
-            value: {{ .Values.logdna.autoupdate }}
+            value: "{{ .Values.logdna.autoupdate }}"
+{{- end }}
+{{- if .Values.logdna.ldApiIHost }}
+          - name: LDAPIHOST
+            value: "{{ .Values.logdna.ldApiIHost }}"
+{{- end }}
+{{- if .Values.logdna.ldLogHost }}
+          - name: LDLOGHOST
+            value: "{{ .Values.logdna.ldLogHost }}"
 {{- end }}
         resources:
 {{ toYaml .Values.resources | indent 12 }}

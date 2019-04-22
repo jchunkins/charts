@@ -15,6 +15,155 @@ This chart deploys LogDNA collector agents to all nodes in your cluster. Logs wi
 ## Prerequisites
 
 - Kubernetes 1.2+
+- A LogDNA Ingestion Key
+
+### Pod Security Policies
+
+LogDNA-agent containers needs to mount host volumes to read the logs for ingestion, and needs to run as root. This chart requires a PodSecurityPolicy (with host volume and root access) to be bound to the target namespace prior to installation. If the `default` PodSecurityPolicy on your namespace is not restrictive then this step is not needed.
+
+If the default is restrictive, In ICP you can create a new namespace with either a predefined PodSecurityPolicy.
+
+- Predefined PodSecurityPolicy name: [ibm-anyuid-hostpath-psp](https://github.com/IBM/cloud-pak/blob/master/spec/security/psp/README.md)
+
+Alternatively, you can have your cluster administrator setup a custom PodSecurityPolicy for you using the below definition:
+
+- Custom PodSecurityPolicy definition:
+
+```yaml
+apiVersion: extensions/v1beta1
+kind: PodSecurityPolicy
+metadata:
+annotations:
+    kubernetes.io/description: 'This policy allows pods to run with any UID and GID
+    and any volume, including the host path. WARNING:  This policy allows hostPath
+    volumes. Use with caution.'
+name: custom-anyuid-hostpath-psp
+spec:
+allowPrivilegeEscalation: true
+allowedCapabilities:
+- SETPCAP
+- AUDIT_WRITE
+- CHOWN
+- NET_RAW
+- DAC_OVERRIDE
+- FOWNER
+- FSETID
+- KILL
+- SETUID
+- SETGID
+- NET_BIND_SERVICE
+- SYS_CHROOT
+- SETFCAP
+fsGroup:
+    rule: RunAsAny
+requiredDropCapabilities:
+- MKNOD
+runAsUser:
+    rule: RunAsAny
+seLinux:
+    rule: RunAsAny
+supplementalGroups:
+    rule: RunAsAny
+volumes:
+- '*'
+```
+
+- Create a [ClusterRole](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#default-roles-and-role-bindings)
+
+Save the following defintion into a file (e.g. clusterrole.yaml)
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+name: logdna-clusterrole
+rules:
+- apiGroups:
+    - ''
+    resources:
+    - pods
+    - secrets
+    - jobs
+    verbs:
+    - get
+    - create
+    - delete
+```
+
+Run:
+```
+kubectl create -f clusterrole.yaml
+```
+
+- Create ClusterRoleBinding.
+
+Create a ClusterRoleBinding which binds ClusterRole created in previous step to default service account of the namespace.
+
+Run:
+
+_(NOTE: replace `<namespace>` with your namespace )_
+
+```
+kubectl create rolebinding logdna-clusterrolebinding --clusterrole=logdna-clusterrole --serviceaccount=<namespace>:default --namespace=<namespace>
+```
+
+or using ClusterRoleBinding definition:
+
+Save the following defintion into a file (e.g. clusterrolebinding.yaml)
+
+```yaml
+- apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+    name: logdna-clusterrolebinding
+roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: logdna-clusterrole
+subjects:
+    - kind: ServiceAccount
+    name: default
+    namespace: <namespace>
+```
+
+Run:
+```
+kubectl create -f clusterrolebinding.yaml
+```
+
+Alternatively, a cluster admin can create a [service account](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/) for LogDNA itself and bind the ClusterRole to it.
+
+Save the following defintion into a file (e.g. serviceaccount.yaml):
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+    name: logdna-serviceaccount
+    namespace: <namespace>
+```
+
+Run:
+```
+kubectl create -f serviceaccount.yaml
+```
+
+
+### Image Security Policies
+
+If the cluster has image security policies enforced, logdna's docker image should be added to it 
+
+For example on [IBM Private Cloud (ICP)](https://www.ibm.com/support/knowledgecenter/en/SSBS6K_3.1.2/manage_images/image_security.html) :
+
+```
+apiVersion: securityenforcement.admission.cloud.ibm.com/v1beta1
+kind: ClusterImagePolicy
+metadata:
+name: ibmcloud-default-cluster-image-policy
+spec:
+ repositories:
+   - name: docker.io/logdna/logdna-agent:*
+```
 
 ## Installing the Chart
 
@@ -71,3 +220,11 @@ $ helm install --name my-release -f values.yaml stable/logdna-agent
 ```
 
 > **Tip**: You can use the default [values.yaml](values.yaml)
+
+## Support
+
+When using IBM Cloud LogDNA instance, reach out to [IBM cloud support](https://cloud.ibm.com/unifiedsupport/supportcenter)
+
+When using LogDNA SAAS, reach out to support from [LogDNA web console](https://app.logdna.com/)
+
+[ICP Support](https://ibm.biz/icpsupport)
