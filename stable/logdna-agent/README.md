@@ -131,23 +131,6 @@ Run:
 kubectl create -f clusterrolebinding.yaml
 ```
 
-Alternatively, a cluster admin can create a [service account](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/) for LogDNA itself and bind the ClusterRole to it.
-
-Save the following defintion into a file (e.g. serviceaccount.yaml):
-
-```yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-    name: logdna-serviceaccount
-    namespace: <namespace>
-```
-
-Run:
-```
-kubectl create -f serviceaccount.yaml
-```
-
 
 ### Image Security Policies
 
@@ -167,7 +150,15 @@ spec:
 
 ## Installing the Chart
 
-To install the chart with the release name `my-release`, please follow directions from https://app.logdna.com/pages/add-source to obtain your LogDNA Ingestion Key:
+### Obtain LogDNA Ingestion Key from IBM Cloud LogDNA server instance
+View your [logging instance](https://cloud.ibm.com/observe/logging) and select `View LogDNA`.
+Select the help icon in lower left (i.e. install instructions) to view your LogDNA Ingestion Key
+
+### Obtain LogDNA Ingestion Key from LogDNA server instance
+Please follow directions from https://app.logdna.com/pages/add-source to obtain your LogDNA Ingestion Key.
+
+### Install
+To install the chart with the release name `my-release`:
 
 ```bash
 $ helm install --name my-release \
@@ -182,6 +173,10 @@ $ helm install --name my-release \
     --set logdna.key=LOGDNA_INGESTION_KEY,logdna.tags=production,logdna.autoupdate=1 stable/logdna-agent
 ```
 
+This helm release will first create a one time kubernetes job which will setup a kubernetes secret which contains your 
+LogDNA Ingestion Key, and then install a deaemonset for the LogDNA agent. The generated secret is independent from your 
+helm release and must be managed separately (see [Uninstalling the Chart](#uninstalling_the_chart) for further details).
+
 ## Uninstalling the Chart
 
 To uninstall/delete the `my-release` deployment:
@@ -190,7 +185,12 @@ To uninstall/delete the `my-release` deployment:
 $ helm delete my-release
 ```
 
-The command removes all the Kubernetes components associated with the chart and deletes the release.
+The command removes the Kubernetes daemonset associated with the chart and deletes the release. You must 
+manually remove the secret. To remove the secret for release `my-release`:
+
+```bash
+kubectl delete secret my-release-logdna-agent
+```
 
 ## Configuration
 
@@ -221,10 +221,14 @@ $ helm install --name my-release -f values.yaml stable/logdna-agent
 
 > **Tip**: You can use the default [values.yaml](values.yaml)
 
+
+
 ## Support
 
-When using IBM Cloud LogDNA instance, reach out to [IBM cloud support](https://cloud.ibm.com/unifiedsupport/supportcenter)
+### Connecting to IBM Cloud LogDNA server instance
+If you configure your agent to connect to a IBM Cloud LogDNA instance, you may contact 
+[IBM cloud support](https://cloud.ibm.com/unifiedsupport/supportcenter) if you experience issues connecting to the instance.
 
-When using LogDNA SAAS, reach out to support from [LogDNA web console](https://app.logdna.com/)
-
-[ICP Support](https://ibm.biz/icpsupport)
+### Connecting to LogDNA server instance
+If you configure your agent to connect to LogDNA directly, you may contact LogDNA support through
+the [LogDNA web console](https://app.logdna.com/) if you experience issues connecting to LogDNA directly.
