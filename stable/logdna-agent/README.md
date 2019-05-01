@@ -149,10 +149,12 @@ spec:
 
 The logdna-agent chart requires that you store your ingestion key inside a kubernetes secret using the key name logdna-agent-key. We suggest that you name the secret with the name of your release followed by logdna-agent, separated with a dash. For example if you plan to create a deployment with release name my-release then use this command (replaceing the X's with your ingestion key and substituting namespace_name with the namespace you want to use):
 
+```
 kubectl create secret generic my-release-logdna-agent \
   --from-literal='logdna-agent-key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX' \
   --namespace namespace_name
 When installing the chart you must refer to the name of the secret you have created. In our previous example that name is my-release-logdna-agent.
+```
 
 ## Installing the Chart
 
