@@ -28,7 +28,7 @@ logdna:
     description: logdna configuration values
   ingestionKeySecret:
     __metadata:
-      label: Ingestion Key
+      label: Kubernetes Secret Name
       description: The name of the kubernetes secret which contains the ingestion key
       type: string
       required: true
