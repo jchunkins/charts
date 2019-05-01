@@ -5,7 +5,7 @@
 ## TL;DR;
 
 ```bash
-$ helm install --set logdna.key=LOGDNA_INGESTION_KEY stable/logdna-agent
+$ helm install --set logdna.ingestionKeySecret=LOGDNA_INGESTION_SECRET stable/logdna-agent
 ```
 
 ## Introduction
@@ -148,6 +148,15 @@ spec:
    - name: docker.io/logdna/logdna-agent:*
 ```
 
+### Creating a Secret
+
+The logdna-agent chart requires that you store your ingestion key inside a kubernetes secret using the key name logdna-agent-key. We suggest that you name the secret with the name of your release followed by logdna-agent, separated with a dash. For example if you plan to create a deployment with release name my-release then use this command (replaceing the X's with your ingestion key and substituting namespace_name with the namespace you want to use):
+
+kubectl create secret generic my-release-logdna-agent \
+  --from-literal='logdna-agent-key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX' \
+  --namespace namespace_name
+When installing the chart you must refer to the name of the secret you have created. In our previous example that name is my-release-logdna-agent.
+
 ## Installing the Chart
 
 ### Obtain LogDNA Ingestion Key from IBM Cloud LogDNA server instance
@@ -162,7 +171,7 @@ To install the chart with the release name `my-release`:
 
 ```bash
 $ helm install --name my-release \
-    --set logdna.key=LOGDNA_INGESTION_KEY,logdna.autoupdate=1 stable/logdna-agent
+    --set logdna.ingestionKeySecret=LOGDNA_INGESTION_SECRET,logdna.autoupdate=1 stable/logdna-agent
 ```
 
 You should see logs in https://app.logdna.com in a few seconds.
@@ -170,12 +179,8 @@ You should see logs in https://app.logdna.com in a few seconds.
 ### Tags support:
 ```bash
 $ helm install --name my-release \
-    --set logdna.key=LOGDNA_INGESTION_KEY,logdna.tags=production,logdna.autoupdate=1 stable/logdna-agent
+    --set logdna.ingestionKeySecret=LOGDNA_INGESTION_SECRET,logdna.tags=production,logdna.autoupdate=1 stable/logdna-agent
 ```
-
-This helm release will first create a one time kubernetes job which will setup a kubernetes secret which contains your 
-LogDNA Ingestion Key, and then install a deaemonset for the LogDNA agent. The generated secret is independent from your 
-helm release and must be managed separately (see [Uninstalling the Chart](#uninstalling_the_chart) for further details).
 
 ## Uninstalling the Chart
 
@@ -198,7 +203,7 @@ The following tables lists the configurable parameters of the LogDNA Agent chart
 
 Parameter | Description | Default
 --- | --- | ---
-`logdna.key` | LogDNA Ingestion Key (Required) | None
+`logdna.ingestionKeySecret` | LogDNA Ingestion Key (Required) | None
 `logdna.tags` | Optional tags such as `production` | None
 `logdna.autoupdate` | Optionally turn on autoupdate by setting to 1 (auto sets image.pullPolicy to always) | `0`
 `image.pullPolicy` | Image pull policy | `IfNotPresent`
@@ -210,7 +215,7 @@ Specify each parameter using the `--set key=value[,key=value]` argument to `helm
 
 ```bash
 $ helm install --name my-release \
-    --set logdna.key=LOGDNA_INGESTION_KEY,logdna.tags=production,logdna.autoupdate=1 stable/logdna-agent
+    --set logdna.ingestionKeySecret=LOGDNA_INGESTION_SECRET,logdna.tags=production,logdna.autoupdate=1 stable/logdna-agent
 ```
 
 Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart. For example,

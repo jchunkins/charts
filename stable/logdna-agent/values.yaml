@@ -6,8 +6,8 @@ image:
 logdna:
   ## Please follow directions from https://app.logdna.com/pages/add-source
 
-  ## An ingestion key is required for this chart to run
-  key: ""
+  ## The name of the kubernetes secret which contains the ingestion key 
+  ingestionKeySecret: ""
 
   ## Optional settings
   autoupdate: "0"

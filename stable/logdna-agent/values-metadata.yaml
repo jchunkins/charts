@@ -26,10 +26,10 @@ logdna:
   __metadata:
     label: LogDNA
     description: logdna configuration values
-  key:
+  ingestionKeySecret:
     __metadata:
       label: Ingestion Key
-      description: An ingestion key is required for this chart to run
+      description: The name of the kubernetes secret which contains the ingestion key
       type: string
       required: true
 
