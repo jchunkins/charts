@@ -153,8 +153,8 @@ The logdna-agent chart requires that you store your ingestion key inside a kuber
 kubectl create secret generic my-release-logdna-agent \
   --from-literal='logdna-agent-key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX' \
   --namespace namespace_name
-When installing the chart you must refer to the name of the secret you have created. In our previous example that name is my-release-logdna-agent.
 ```
+When installing the chart you must refer to the name of the secret you have created. In our previous example that name is my-release-logdna-agent.
 
 ## Installing the Chart
 
