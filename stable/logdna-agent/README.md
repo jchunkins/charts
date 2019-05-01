@@ -76,18 +76,15 @@ Save the following defintion into a file (e.g. clusterrole.yaml)
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-name: logdna-clusterrole
+  name: logdna-clusterrole
 rules:
-- apiGroups:
-    - ''
-    resources:
-    - pods
-    - secrets
-    - jobs
-    verbs:
-    - get
-    - create
-    - delete
+- apiGroups: ["extensions"]
+  resourceNames: ["ibm-anyuid-hostpath-psp"]
+  resources: ["podsecuritypolicies"]
+  verbs: ["use"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "create", "delete", "patch"]
 ```
 
 Run:
@@ -95,27 +92,27 @@ Run:
 kubectl create -f clusterrole.yaml
 ```
 
-- Create ClusterRoleBinding.
+- Create RoleBinding.
 
-Create a ClusterRoleBinding which binds ClusterRole created in previous step to default service account of the namespace.
+Create a RoleBinding which binds ClusterRole created in previous step to default service account of the namespace.
 
 Run:
 
 _(NOTE: replace `<namespace>` with your namespace )_
 
 ```
-kubectl create rolebinding logdna-clusterrolebinding --clusterrole=logdna-clusterrole --serviceaccount=<namespace>:default --namespace=<namespace>
+kubectl create rolebinding logdna-rolebinding --clusterrole=logdna-clusterrole --serviceaccount=<namespace>:default --namespace=<namespace>
 ```
 
-or using ClusterRoleBinding definition:
+or using RoleBinding definition:
 
-Save the following defintion into a file (e.g. clusterrolebinding.yaml)
+Save the following defintion into a file (e.g. rolebinding.yaml)
 
 ```yaml
 - apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: ClusterRoleBinding
+kind: RoleBinding
 metadata:
-    name: logdna-clusterrolebinding
+    name: logdna-rolebinding
 roleRef:
     apiGroup: rbac.authorization.k8s.io
     kind: ClusterRole
