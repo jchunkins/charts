@@ -127,4 +127,6 @@ If you wish to provide your own `newrelic.yml` you may do so under `config`. The
 
 # Support
 
+IF you encounter issues, please contact New Relic Support at https://support.newrelic.com
+
 License key documentation: https://docs.newrelic.com/docs/accounts/install-new-relic/account-setup/license-key
