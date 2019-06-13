@@ -1,0 +1,103 @@
+image:
+  __metadata:
+    label: Image
+    description: docker image configuration values
+  name:
+    __metadata:
+      label: Image Name
+      description: Name of docker image
+      type: string
+      required: true
+  tag:
+    __metadata:
+      label: Image Tag
+      description: Tag of docker image
+      type: string
+      required: true
+  pullPolicy:
+    __metadata:
+      label: Image Pull Policy
+      description: Pull policy for docker image
+      type: string
+      required: true
+    
+
+logdna:
+  __metadata:
+    label: LogDNA
+    description: logdna configuration values
+  ingestionKeySecret:
+    __metadata:
+      label: Kubernetes Secret Name
+      description: The name of the kubernetes secret which contains the ingestion key
+      type: string
+      required: true
+
+  ## Optional settings
+  autoupdate:
+    __metadata:
+      label: Autoupdate
+      description: Sets whether the agent should update itself when new versions are available on the public repo (default is 1, set to 0 to disable)
+      type: string
+      required: false
+  tags:
+    __metadata:
+      label: Tags
+      description: Use tags to separate data for production, staging, or autoscaling use cases
+      type: string
+      required: false
+  
+  ldApiIHost: 
+    __metadata:
+      label: LogDNA API Host
+      description: Host name to contact for API calls
+      type: string
+      required: true
+      options:
+      - label: LogDNA SaaS
+        value: api.logdna.com
+      - label: IBM LogDNA Saas
+        value: api.us-south.logging.cloud.ibm.com
+        
+  ldLogHost:
+    __metadata:
+      label: LogDNA Logs Host
+      description: Host name to send the logs for ingestion
+      type: string
+      required: true
+      options:
+      - label: LogDNA SaaS
+        value: logs.logdna.com
+      - label: IBM LogDNA Saas
+        value: logs.us-south.logging.cloud.ibm.com
+
+resources:
+  __metadata:
+    label: Resources
+    description: kubernetes resource configuration values
+  requests:
+    cpu:
+      __metadata:
+        label: CPU
+        description: Kubernetes resource request cpu
+        type: string
+        required: true
+      
+  limits:
+    memory:
+      __metadata:
+        label: Memory
+        description: Kubernetes resource memory limit
+        type: string
+        required: true
+
+daemonset:
+  __metadata:
+    label: Daemonset
+    description: kubernetes daemonset configuration values
+  tolerations:
+    __metadata: ### arrayField: for an empty field, "[]" or [] must be set in values.yaml.
+      label: Tolerations
+      type: string   ### do to backwards-compat bug, type must be string
+      description: I am an array
+      required: false

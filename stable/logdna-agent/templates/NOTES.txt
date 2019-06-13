@@ -1,20 +1,20 @@
-{{- if not .Values.logdna.key -}}
-#############################################################
-###  ERROR: Please specify an ingestion key `logdna.key`  ###
-#############################################################
+{{- if not .Values.logdna.ingestionKeySecret -}}
+#####################################################################################
+###  ERROR: Please specify an kubernetes secret name `logdna.ingestionKeySecret`  ###
+#####################################################################################
 
 
 Please follow directions from https://app.logdna.com/pages/add-source
 
 Try:
 
-helm upgrade {{ .Release.Name }} --set logdna.key=INGESTION_KEY \
+helm upgrade {{ .Release.Name }} --set logdna.ingestionKeySecret=INGESTION_KEY \
   stable/logdna-agent
 
 
 Tags support:
 
-helm upgrade {{ .Release.Name }} --set logdna.key=INGESTION_KEY,logdna.tags=production \
+helm upgrade {{ .Release.Name }} --set logdna.ingestionKeySecret=INGESTION_KEY,logdna.tags=production \
   stable/logdna-agent
 
 {{- else -}}
